@@ -1,0 +1,200 @@
+---
+title: "Happiness versus Income Awareness"
+subtitle: "Will people be happier if they know each other's income?"
+author: 
+  - Xiao Bai
+  - Yichun Zhang
+date: "20/02/2022"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+abstract: "In 2001, tax records in Norwey becaome easily accessible online, which allows everyone to see their income level and make comparsion with other people's income. The populatiry of searching the word "Skattelister" (tax record list) has increased significantly since the introduction of tax data in 2001. People has large interest in the tax lists: for every five searches for YouTube, there was about one for skattelister. However, the introduction of this tax record list would cause a negative effect on the public as the income comparision model reports that the visible income transparency can exntend the disparity in well-being between groups of people with higher and lower income. "
+bibliography: references.bib
+---
+
+\newpage
+# Introduction
+After the introduction of easy internet access to Norwegian tax data in 2001, it became possible for everyone in the nation to quickly and easily see the earnings of anyone else in the country. In Norway, everyone was just a few clicks away from discovering the average income of everyone else in the nation. In the busiest week of the year, these websites were more popular than YouTube, according to data.Because income transparency makes it easier to compare incomes, it has the potential to expand the disparity in well-being between wealthier and poorer people. Individuals with lower incomes often lose in this game of income comparisons.
+
+Based on information gathered by the Norwegian Monitor Survey, an annual self-completion questionnaire was disseminated to an ethnically diverse sample of Norwegians between 1985 and 2013. In terms of several apparent qualities, this group seems to be typical of the broader population. According to one website, there were 29.4 million searches made in the first year after the 2007 tax data (VG 2008). The Norwegian Ministry of Finance (2014) reported 920,896 unique users completed approximately more than 17 million searches in the previous year.A total of 3,797,822 persons, or more than 24.25 percent of Norway's adult population, looked for at least one tax record in 2013, with the average user doing 18.46 searches. The mismatch may be attributed to the 2011 requirement that users check in to the official tax office website in order to search for tax data.
+
+In this paper, we will first use various data sources to show the popularity of these online tax lists in both Norway and Sweden through comparing search volumes of different keywords. Then we will narrow down our topic to be more focusing on weekly search volumes in Norway between January 2010 and January 2011. We found that the first month of 2010 was the first time that the overall number of searches across all categories reached one million. Immediately after the release of the previous year's tax data, individuals began searching for tax lists in droves. Norway's tax lists outperformed YouTube searches during that month, demonstrating that Norwegians were more interested in learning about other people's income than they were in watching YouTube videos. In addition, since income transparency intents income comparison, it might also widen the gap between richer individuals and poorer individuals well-being. We will then discuss the effect of the increase in transparency using the gradient between subjective well-being and individual income rank. By doing so, we will conduct a regression model to test whether there is a positive relationship between an individual's income rank and its well-being. Ideally, conducting these three aspects can provide people a general understanding of how a higher income transparency can affect the well-being gap between different groups of people with different income level.
+
+
+
+## Literature Review
+Many researches have studies about the relationship between income transparency and happiness. Many suggested one's feeling of well-being is influenced by one's relative wealth. These findings contribute to the understanding of the Easterly Paradox, which states that an increase in wealth for everyone does not result in an increase in general happiness (PNAS 2010). Because utility is a matter of perspective, policymakers have been pushed to consider factors other than GDP. The so-called resource curse,' which refers to the propensity of resource-rich nations to underperform in a variety of social-economic outcomes, has piqued the public's attention in recent years. Recent research has gone beyond the usual influence on economic growth and instead examined the implications on wider indices of human well-being, such as infant mortality. In recent decades, a distinct empirical literature has investigated the factors of happiness and subjective well-being in more depth (using either country or household data).
+
+In the paper "Happiness, Income, and Poverty," the author first presents some evidence that well-being is unquestionably related to income, but then explores two factors that imply GDP per capita may still play a role in happiness-based policy: subjective well-being inequality and the specific example of individuals who are in income poverty, both of which imply GDP per capita may still play a role in happiness-based policy (Clark 2017). Income inequality is a new component that is introduced in the study "The Effects of Income Levels and Income Inequalities on Happiness" by Tavor et al. (2017), which examines the relationship between happiness and income inequality. Happiness has been shown to have a negative impact at severe levels of inequality defined by the Gini index, independent of GDPppp per capita. This has been experimentally shown. On the other hand, across intermediate ranges of the Gini index, the relationship between index changes and pleasure is equivocal, as seen in Figure 1. These conclusions may be drawn independently of the actual figures of GDPppp per capita in the country. Bringing these two empirical lines of study together results in the publication "Happiness and the Resource Curse," by Ali et al. (2019), which is published in the Journal of Happiness Studies. This is the first research that we are aware of that takes use of a large panel dataset to investigate the relationships between changes in happiness across nations and different metrics of resource richness, according to the authors. Our findings, which are consistent with past empirical evidence of a resource curse in oil-rich countries, show that increases in oil rents are adversely related to increases in happiness over time. This 'resource curse' curse on happiness seems to be oil-specific, and it appears to hold true for both the levels and changes in levels of happiness.
+
+## Concepts and Terminologies 
+
+Subject Well-Being -- the main outcome of interest. The Norwegian Monitor Survey contains questions about happiness and life satisfaction, which are the two most extensively used measures of subjective well-being. (Easterlin 2004, Kahneman and Deaton 2010). 
+
+Happiness: Questions asked in happiness questions are: "Will you mostly describe yourself as: Very happy; Quite happy; Not particularly happy; Not at all happy." 
+
+Satisfaction: The life satisfaction question is, “How satisfied are you with your life? Very satisfied; Somewhat Satisfied; Neither satisfied nor dissatisfied; Slightly dissatisfied; Very dissatisfied.” Researchers of the original paper "The effects of income transparency on well-being" (Ricardo Perez-Truglia, 2020) employ the Probit-OLS method to assign these values (van Praag and Ferrer-i-Carbonell 2008). 
+
+Income Rank —- denotes the respondent's position in the distribution of household income for the current year. Respondents were questioned about their yearly gross household income using bins, as is customary in household surveys.
+
+Perceived Rank -- Based on the question: "Would you say that your economic condition is... in contrast to other Norwegians?" Slightly worse than average; Average; Slightly better than average; Much better than average." Using the Probit-OLS approach, these five categories were given values, and the variable was then standardized to have a mean of 0 and a standard deviation of 1. Greater values indicate a higher level of ranking.
+
+Transparency: A dummy variable indicating the period of higher income transparency. Equal to 1 if time is in between 2001 and 2013, and 0 otherwise.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(haven)
+library(tidyverse)
+```
+
+```{r, include=FALSE}
+survey_data = read_dta("Raw-Norwegian-Monitor-Survey-Data.dta", encoding = 'latin1')
+country_data = read_dta("google_searches_by_country.dta", encoding = 'latin1')
+time_data = read_dta("google_searches_over_time.dta", encoding = 'latin1')
+names_data = read_dta("names_browsing_skattelister.dta", encoding = 'latin1')
+```
+
+# Data and Context
+
+The findings are based on information gathered by the Norwegian Monitor Survey. The Norwegian Monitor Study was a cross-sectional study that was carried out on a repeating basis by the market research firm Ipsos MMI. An annual self-completion questionnaire, which was disseminated to an ethnically diverse sample of Norwegians between 1985 and 2013, gathered the data every other year between 1985 and 2013. The total number of observations included in our regression analysis was 48,570, which was collected over a 15-year period, suggesting an average of 3,238 observations each survey year for the 15-year period under consideration. In terms of several apparent qualities, this group seems to be typical of the broader population.
+
+Norwegian had access to tax information, as shown by documentation included in the original reproduction package. Perhaps the most compelling evidence comes from a Synovate poll done in 2007, which was representative of the whole taxable population of the United States at the time. Statistics on web traffic show that online tax listings are quite popular, which supports media reporting on their tremendous popularity in this area. According to one website, there were 29.4 million searches made in the first year after the publication of the 2007 tax data (which was published in January) (VG 2008). On top of all of that, there is information that is publicly available from a time when tax records could only be accessed via the tax agency's official website. As reported by the Norwegian Ministry of Finance (2014), 920,896 unique users completed slightly more than 17 million questions in the previous year, according to the most recent available data. 16 During that specific calendar year, only adults with a valid account were able to do searches on the official website. A total of 3,797,822 persons, or more than 24.25 percent of Norway's adult population, looked for at least one tax record in 2013, with the average user doing 18.46 searches. It is not feasible to directly compare figures from 2007 and 2013 since they are derived from a range of sources and are most likely based on different definitions, making direct comparison impossible. As a consequence of this restriction, the number of people doing searches, as well as the number of searches per capital, fell between 2007 and 2013. In most cases, this mismatch may be attributed to the 2011 requirement that users check in to the official tax office website in order to search for tax data, which was put in place in 2011.
+
+# Tax information is popular 
+## Methods
+
+To measure the popularity of the tax lists, we rely on three sources of information. The most concrete evidence comes from a Synovate poll performed in 2007, which was representative of the taxable population. The web traffic data backs up media statements about the tremendous popularity of online tax lists. One website claims 29.4 million searches in the year after the publication of the 2007 tax records (VG 2008). There are also publicly available statistics from the time when tax records could only be accessed via the tax agency's official website. According to the Norwegian Ministry of Finance (2014), in 2013, 920,896 unique users completed slightly more than 17 million queries. 16 Only adults with a valid account were able to do searches on the official website that year. In 2013, over 24.25 percent of the 3,797,822 adults in Norway looked for at least one tax record, with the average user doing 18.46 searches. Statistics from 2007 and 2013 are not directly comparable since they originate from various sources and are most likely based on different definitions. With that proviso in mind, the number of people undertaking searches and the number of searches per capital declined between 2007 and 2013. This disparity is most likely related to the 2011 requirement that users check in to the official tax office website in order to look for tax data.
+
+
+## Results 
+
+
+```{r, echo=FALSE}
+country_hah <- read.table(text = "keyword    Norway    Sweden
+                  'Skattelister'   21.686750      0
+                  'Tax'  7.228915      2.325581
+                  'Weather'   18.072290      23.255819
+                  'Youtube'   100.000000      100.000000
+                  ",
+                  header = TRUE, stringsAsFactors = FALSE)
+
+df2 <- country_hah %>% 
+  gather(Country, Value,-keyword)
+
+countryaha <- ggplot(data = df2) +
+  geom_bar(aes(x = keyword,
+               y = Value,
+               fill = Country
+               ),
+           stat = "identity",
+           position = position_dodge()) +
+  theme(legend.title=element_blank()) +
+  labs(title ="Figure 1: Search Volumnes in Norway & Sweden (annually)", x = "Google search keyword", y = "Google searches relative to Youtube (%)")+theme_classic()
+countryaha
+```
+
+When looking for tax documents on the internet, it's necessary to be familiar with the most often used words, as seen in Figure 1. By inserting the word "YouTube," we've provided a jumping-off point for other users. Norway has been located, which signifies that the quest has come to an end. A skattelister's test in Norway is no longer solely dependent on weather predictions as of the year 2010. A skattelister search accounted for almost one out of every five YouTube searches. This indicates that there is a great deal of interest in the tax listings. Norwegians were found to be more prone than the overall population to look for tax paperwork, according to the study. While it is true that people have an increased interest in taxation, tax lists were searched approximately three times more often than actual taxes.
+
+
+
+```{r}
+time_date3 = melt(time_data, id.vars = "edate", measure.vars = c("tax", "weather","skattelister","youtube"))
+
+
+time_date3%>%
+  rename(Keyword = variable)%>%
+  ggplot(aes(x=edate, y=value, group=Keyword, color=Keyword))+geom_line()+theme_classic()+labs(title  = "Figure 2: Search Volumes in Norway (bi- weekly)", x = "Time interval (every 2 weeks)", y = "Google search Volumes")+theme(axis.text.x = element_text(angle = 90, size = 8))+scale_x_date(date_labels="%b %y",date_breaks  ="2 week")
+```
+
+As seen in Figure 2, the distribution of Google searches by week in 2010 is broken out into separate weeks for each month. The first week of 2010 was the first time that the overall number of searches across all categories reached one million. The number of searches for tax-related information remained steady throughout the year, with the number of searches for weather-related information almost doubling. Immediately after the release of the previous year's tax data, which occurred during the third week of October, individuals began searching for tax lists in droves. Norway's tax lists outperformed YouTube searches during that week, demonstrating that Norwegians were more interested in learning about other people's income than they were in watching YouTube videos.
+
+
+
+```{r, include = FALSE}
+# Descriptive statistics for the main variables from the noeweigian ...
+data1 <- survey_data  %>% filter(!is.na(happy)) %>% summarise(sd(happy), mean(happy)) 
+data1
+```
+
+# Income Transparency affects well-being
+
+## Methods
+
+With the available tax records allowing the analysis, the income comparison model aims to demonstrate the hypothesis that income transparency allows individual well-being gap to be improved: as the poor individuals often lose this game of income comparison by losing social recognition and self-esteem while the rich  benefits by learning how richer they are compared to others. We attempt to test this hypothesis by measuring the effect of increase in transparency on the gradient between subjective well-being and their respective income rank. Furthermore, according to the author's argument, the two most widely used measures of subjective well-being is happiness and life satisfaction. Therefore, in this paper, we try to use happiness level as a measure of subjective well-being of individual as our predicted variable and examine its relationship with income rank. We interpret the function as the following:
+
+$SWB_i,_t = \alpha_1*IncomeRank_i,_t+\alpha_2*IncomeRank_i,_t*Transparency+e_i,_t+X_i,_t\beta$
+
+In this model, $SWB_i,_t$ represents the subject well-being of individual i in year t, $IncomeRank_i,_t$ is the income rank of individual i in year t, $Transparency$ is a dummy variable about the period of time with higher income transparency, equals to 1 when the time period is from 2001 to 2013, and 0 otherwise. $X_i,_t\beta$ is a set of control variable used in the study, controlling the changing of age, age squared, and dummies for gender, education, marital status, total number of household members and number of working household members. $ds$ is a year effect variable and $e_i,_t$ is error term accounting for potential errors.
+
+The coefficient $\alpha_1$ represents the average change of happiness level (between the year 1985 and 2000) with one unit change of $\IncomeRank_i,_t$, holding other variables constant. Based on our assumption, if the value of this coefficient is positive, we can say that there might be a positive relationship between income level and happiness level. Practically, the subject well-being of an individual at certain year is associated with "being richer" as per the gain from purchases of better goods and services and the gain from "income comparison", one became more confident with higher income. Similarly, $\alpha_2$ represents the additional happiness from the changing happiness-income gradient from 2001 to 2013 (as the dummy variable become 1 in this time frame. 0 when the period from 1985 to 2000). The positive value indicates that the higher transparency raises the gradient of happiness-income.
+
+
+```{r}
+survey_data1 = survey_data %>%
+  mutate(transparency = if_else(year %in% 2001:2013, 1,0))
+model0=lm(happy~inc_comparison+inc_comparison:transparency,data=survey_data1)
+summary(model0)
+```
+
+
+## Results
+
+Variable | Coefficient | P-value
+---------|------|-------------------
+(Intercept) | 2.751 | <2e-16
+Income Rank | 0.120 | <2e-16
+Income Rank*Transparency(2001-2013) | 0.090 | 0.032
+
+
+
+Table 1 shows the result of regression model using the same OLS regression. Given the dependent variable happiness, we can see that the estimated coefficient on Income Rank is 0.120, which is positive. Moreover, the p-value of the coefficient is smaller than 0.05, which indicates that Income Rank as explanatory variable is statistical significant to our dependent variable(happiness). This coefficient implies that going from the lowest to the highest income rank in Norway during 1985–2000 was associated with an increase in happiness of 0.120 standard deviations. In addition, this table reports that the coefficient of the interaction term is 0.090. The p-value of 0.032 also implies that this variable is statistical significant to our dependent variable happiness.
+
+
+# Discussions
+
+## Limitations
+There existed very limited used of the online tax lists for the purpose of learning salary. The actual percentage turned out to be only 26 percent of the individuals and may be only for the purpose of snooping not researching. Plus, the nature of the data was described as "completely useless" for salary comparisons practices(NRK 2008). On top of that, the Norwegian tax records reveal comprehensive income including gains outside of the payroll which puts additional uncertainties comparing to the benchmark of the website of state employees studied in Card et al. (2012). 
+
+
+## Ethics
+
+## Future
+
+# Conclusions
+
+
+
+# References
+
+Card, David, Alexandre Mas, Enrico Moretti, and Emmanuel Saez. 2012. “Inequality at Work: The
+Effect of Peer Salaries on Job Satisfaction.” American Economic Review 102 (6): 2981–3003.
+
+NRK. 2008. “Dette er økonomisk pornografi!,” October 14.
+
+Norway Ministry of Finance. 2014. “Høringsnotat om innstramminger i reglene om offentlige skat-
+telister.” January 24, 2014.
+
+Andersen, Ingunn, and Stian Eisenträger. 2008. “I natt kommer de dye skattetallene: 29 millioner søk I skattelistene på VG Nett,” VG, October 14.
+
+Norway Ministry of Finance. 2014. “Høringsnotat om innstramminger i reglene om offentlige skat-
+telister.” January 24, 2014.
+
+NRK. 2008. “Dette er økonomisk pornografi!,” October 14.
+
+Omdahl, Jan. 2009. “Nå får du skattesøk på iPhone,” Dagbladet, October 15.
+
+Origo. 2010. “Debatten om skatten,” October 20.
+
+Clark, A.E. Happiness, income and poverty. Int Rev Econ 64, 145–158 (2017). https://doi.org/10.1007/s12232-017-0274-7, 
+
+Tavor, T., Gonen, L. D., Weber, M., &amp; Spiegel, U. (2017). The effects of income levels and income inequalities on happiness. Journal of Happiness Studies, 19(7), 2115–2137. https://doi.org/10.1007/s10902-017-9911-9 
+
+Ali, S., Murshed, S.M. & Papyrakis, E. Happiness and the Resource Curse. J Happiness Stud 21, 437–464 (2020). https://doi.org/10.1007/s10902-019-00080-3
+
+PNAS December 28, 2010 107 (52) 22463-22468; https://doi.org/10.1073/pnas.1015962107
+Contributed by Richard A. Easterlin, October 26, 2010 (sent for review October 1, 2010)

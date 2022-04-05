@@ -1,0 +1,48 @@
+---
+title: "Simulation"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Stimulate Progress
+
+
+```{r,include=FALSE}
+library("tidyverse")
+student_id <- 1:44763
+
+country <- sample(c("Domestic", "Internation"), 
+                  size = 44763, 
+                  prob = c(1-0.28, 0.28), 
+                  replace = TRUE)
+
+rental <- round_any(rnorm(44763, mean = 1300, sd = 400 ),10) 
+food <- NA
+for (i in 1:44763){
+  if (rental[i] >1300){
+    food[i] <- max(0,rnorm(1, mean = 1200, sd = 300))
+  } else{
+    food[i] <- max(0,rnorm(1, mean = 800, sd = 300))
+  }
+}
+trans <- round(rgamma(44763, shape = 10, scale = 10),2)
+income <- round_any(rgamma(44763, shape = 25, scale = 140),2) 
+gender <- sample(c("Male", "Female"), 
+                 size = 44763, 
+                 prob = c(1-0.557,0.557), 
+                 replace = TRUE)
+
+population <- tibble(student_id,
+                     country,
+                     rental,
+                     food,
+                     trans,
+                     income,
+                     gender) 
+population
+
+```
