@@ -40,7 +40,7 @@ just_page_i_no_header
 
 demography_data <- tibble(all = just_page_i_no_header)
 demography_data
-
+write_csv(demography_data, file = "raw_data.csv" )
 
 demography_data <-
   demography_data |>
@@ -51,7 +51,8 @@ demography_data <-
   mutate(all = str_replace(all, "Other urban", "Other_urban")) |> 
   mutate(all = str_replace(all, "D ares Salaam", "Dar_es_Salaam")) |>
   mutate(all = str_replace(all, "I 1.7", "11.7")) |>
-  mutate(all = str_replace(all, "Total rural", "Total_rural")) |> # One specific issue
+  mutate(all = str_replace(all, "Total rural", "Total_rural")) |>
+  mutate(all = str_replace(all, "I.I", "1.1"))|>
   separate(col = all,
            into = c("Background Characteristic", "No education", "Primary incomplete", "Completed primary", "Some secondary and higher", "Don't know", "Total", "Median year of schooling", "Total number"),
            sep = " ", # Works fine because the tables are nicely laid out
@@ -62,7 +63,7 @@ demography_data <-
 
 demography_data
 
-write_csv(demography_data, file="raw_data.csv")
+write_csv(demography_data, file="cleaned_data.csv")
 
 
 ```
@@ -71,16 +72,16 @@ write_csv(demography_data, file="raw_data.csv")
 
 ```{r, echo=FALSE, message=FALSE}
 # do the table instructed in instruction, can be done at the end
-#demography_data %>%
- # mutate_at(vars("No education", "Primary incomplete", "Completed primary", "Some secondary and higher", "Don't know", "Total", "Median year of schooling", "Total number"), ~as.integer(.))
-#library(pointblank)
+demography_data %>%
+  mutate_at(vars("No education", "Primary incomplete", "Completed primary", "Some secondary and higher", "Don't know", "Total", "Median year of schooling", "Total number"), ~as.integer(.))
+library(pointblank)
 
-#agent <-
-#  create_agent(tbl = demography_data) |>
-#  col_is_character(columns = vars("Background Characteristic")) |>
- # col_is_integer(columns = vars("No education", "Primary incomplete", "Completed primary", "Some secondary and higher", "Don't know", "Total", "Median year of schooling", "Total number")) |>
-#  interrogate()
-#agent           
+agent <-
+  create_agent(tbl = demography_data) |>
+  col_is_character(columns = vars("Background Characteristic")) |>
+  col_is_character(columns = vars("No education", "Primary incomplete", "Completed primary", "Some secondary and higher", "Don't know", "Total", "Median year of schooling", "Total number")) |>
+  interrogate()
+agent           
 
 #write_csv(agent, file="cleaned_data.csv")
 ```
@@ -88,7 +89,7 @@ write_csv(demography_data, file="raw_data.csv")
 
 
 ```{r, echo=FALSE, message=FALSE}
-data <- read.csv("raw_data.csv")
+data <- read.csv("cleaned_data.csv")
 data0 <- clean_names(data)%>%
   mutate(no_education = as.numeric(no_education))
 ```
