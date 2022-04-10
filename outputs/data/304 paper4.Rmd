@@ -208,10 +208,10 @@ mm =as.data.frame.matrix(data_residence)
 dat.m <- melt(mm, "background_characteristic")
 ggplot(dat.m, aes(x = factor(background_characteristic), y = value, fill = variable)) + 
 geom_bar(stat='identity',position = "dodge")+
-  labs(title  = "Graph 3: Mean percent by residence", x="Residence", y="Mean value")+theme( plot.title=element_text(size=15), axis.text.x=element_text(size=10,angle=45, hjust=1))+scale_fill_brewer(palette="green")
+  labs(title  = "Graph 3: Mean percent by residence", x="Residence", y="Mean value in percentage")+theme( plot.title=element_text(size=15), axis.text.x=element_text(size=10,angle=45, hjust=1))+scale_fill_brewer(palette="green")
 
 ```
-The bar plot shows the percent distribution of the male household population by three different levels of education attended according to different residence types. The x-axis shows eight main residences in Tanzania and the total male population is classified based on their highest education level. In other words, we group male residence according to: people who had no education experience, have completed primary school, and had attended secondary or higher education schools. 
+The bar plot shows the percent distribution of the male household population by three different levels of education attended according to different residence types. The x-axis shows eight main residences in Tanzania and the total male population is classified based on their highest education level. In other words, we group male population according to: people who had no education experience at all, have completed primary school, or had attended secondary or higher education schools. The y-axis shows their corresponding value of each residence. According to the graph, we can see that the mean percentage of male population that had completed primary education has the highest mean
 
 ```{r, echo=FALSE, message=FALSE}
 data_region = data0%>%
@@ -235,7 +235,7 @@ geom_line(stat='identity')+
 # 3. Method and Model
 
 
-Statistical methods are applied in this paper to help observing and interpreting the data in an alternative way. In this paper, we will use ___ statistical methods to explore deeply about our data. These methods are simple linear regression model, confidence interval and hypothesis test.
+Statistical methods are applied in this paper to help observing and interpreting the data in an alternative way. In this paper, we will use three statistical methods to explore deeply about our data. These methods are simple linear regression model, confidence interval and hypothesis test.
 
 When conducting an estimate in statistics, there is always uncertainty around the estimate because the number is based on a sample of the population. Therefore, using the confidence interval method is also essential to a statistical research because it measures the degree of uncertainty or certainty in a sampling method. More specifically, it provides an approximate set of values that is likely to contain a true parameter that is uncertain. A true parameter can be a true mean, true proportion or standard deviation. Besides, each confidence interval has a percentage associated with it, called a confidence level. This percentage represents how confident we are that the results will capture the true population parameter, relying on the bond's luck together with your random sample. In surveys, confidence levels of 90%/95%/99% are frequently used.
 
@@ -284,8 +284,15 @@ In this case, the null hypothesis is that the true mean percentage will be the s
 Test statistics can be obtained with the formula:
 $$t = \frac{\bar{x}-\mu_0}{s/\sqrt{n}}$$
 
+## 3.3 linear Regression Model:
+
+The multiple linear regression (MLR) is used to model the linear relationship between the explanatory (independent) variables and response (dependent) variables. The general form for multiple linear regression is:
+
+$$y = \beta_0 + \beta_1x_1 + ...+ \beta_px_p+ \epsilon$$
+Where $\beta_i$ represents the coefficients need to estimated, $x_i, i = 1...p$ is the predictor variables, y is the response variable, $\epsilon$ is the error term. Mathematically, $\beta_0$ measures where the line intercept y-axis, and $\beta_1 -\beta_p$ measures the slope of the line. More practically, $\beta_o$ is the value of y when x equals the zero, and $\beta_1 -\beta_p$ is the average change of y when x increase by 1.
 
 # 4 Results
+
 In general, educational attainment is greater in urban areas than it is in rural areas, according to the data. For women, the percentage of those without a formal education in urban regions (25 percent) is lower than that in rural areas (46 percent); for males, the proportion of those without a formal education in urban areas is 19 percent, compared to 35 percent in rural areas.
 Women and men in urban areas are more likely than those in rural areas to have completed elementary and secondary school.
 Both men and girls with no education are in greater proportion in Zanzibar than on the mainland, which is a result of a combination of factors. Zanzibar, on the other hand, has the greatest percentage of the population with a secondary or higher level of education. This is owing to the fact that obligatory primary education includes three years of secondary school as part of the curriculum.
@@ -324,10 +331,96 @@ quantile(boot_mean$mean, c(0.025,0.975 ))
 ## 4.2 Hypothesis Test:
 
 ```{r, echo=FALSE, message=FALSE}
+
+
+df1_new<-as.data.frame(t(data_region))
+df1_new
+
+
+data_region%>%
+  summarise(mean_no_edu = mean(no_education), mean_higher_edu = mean(completed_primary))
+#test_stat = 31.79-27.335 = 4.455
+
+mean_data <- data.frame (characteristic  = c("no_education", "completed_prim"),
+                  means = c("31.79", "27.335")
+                  )%>%mutate(means = as.numeric(means))
+
+test_stat = as.numeric(mean_data%>%summarise(test_stat = diff(means)))
+test_stat
+
+
+repetitions = 1000
+simulated_stats = rep(NA, repetitions)
+for (i in 1:repetitions)
+{
+  dat =mean_data%>% mutate(characteristic=sample(characteristic))
+  y = dat %>%
+    summarise(sim_test_stat = diff(means))
+  x[i]=as.numeric(y)
+}
+sim = data.frame(mean_diff=x)
+
+sim%>%
+  ggplot(aes(x=mean_diff))+geom_histogram()
+
+
+
+
 t <- (6.82381	-13.4)/(5.586124/sqrt(43))
 pvalue <- 1-pt(t,1000-1)
 pvalue
 ```
+
+## 4.3 Linear Regression Model:
+### 4.3.1 Factors affect median year of schooling 
+
+Since we are interested in identifying factors that may affect calculating male population's median year of schooling, we conduct a regression based on these potential factors. We selected two factors, each representing the mean value of total male population that had completed primary education and those who had some secondary or higher education experiences respectively.
+
+Our assumption is that these two variables might have a positive linear relationship with our response variable, median year of schooling. This is because a relatively large proportion of population in Tanzania had difficulty affording tuition fee, so they may chose to not getting education. Similarly, since proportion that completed primary education and secondary or higher education looks equal, we need to perform regression to check which one is more significant in contributing the number of year of school. However, as by intuition we may think of population of total population that have higher educational experience should be lower relative to population that purely attended primary education, we may assume that variable "completed primary" is likely to have stronger correlation with resopnse variable.
+
+In summary, independent variables we chose that may be influential to the dependent variable is listed in the following table.
+
+
+|  Independent Variable | Description | 
+|----------|---------------|---------------
+| Completed primary education  |         | 
+| Secondary or higher education |        | 
+
+Then we conduct a multiple regression based on these explanatory variables to see if there exist some sort of relationship with median year of schooling.
+
+###  New Model
+
+The new model we built based on these variables is:
+
+$$\hat{Feeling aboutlife}=\hat{\beta_0} + \hat{\beta_1}*Agegroup + \hat{\beta_2}*Dwelling+ $$
+
+```{r}
+data_region_for_regress = data0%>%
+  slice(24:43)%>%
+  select(median_year_of_schooling, background_characteristic,no_education,completed_primary,some_secondary_and_higher)
+model <- lm(median_year_of_schooling ~ completed_primary+some_secondary_and_higher, data = data_region_for_regress)
+summary(model)
+```
+
+### 4.2.1 Use Residual Plots to identify potential violations against model assumptions
+
+
+Before we run the result, we need to test the validation of this regression, and this is based on the statistical theory about assumptions of linear regression model. The linear regression model has four assumptions: linearity, uncorrelated errors, constant variance and normality. As we saw when we were deriving the unbiasedness and the covariance of our estimator, we use the assumptions many times to obtain our results. When all the model assumptions are satisfied, we can then be sure that the estimators will behave in a nice way and have all these lovely properties. However, if even one assumption is violated, this can have a large impact on how we can use our estimates.
+
+We can use residual plot to determine whether there are violations of model assumptions. Residual plots allow us to visually inspect the model assumptions. Moreover, we work with residual plots because the data can sometimes be too noisy to see model violations clearly. There are three main types of residual scatter plots that we use: residuals versus predictor plots, residuals versus fitted values plots, and normal qq plots. Both residuals versus predictor and residuals versus fitted value plots can be used to assess whether our first three assumptions hold. We can check by observing from the residuals plot and if there is no discernible pattern seen in the residual’s plots, then the assumptions hold. In other words, to satisfy the assumptions, residual verses fitted predictors plot should not have any pattern or large clusters of residuals. Since residual versus predictors plot can be used when the predictors are numerical, we can only apply residuals versus fitted plot to see if the three assumptions are satisfied. Our plot seems to violate the independence and linearity assumption as we can see there is a pattern shown in this plot and there are two clusters of residuals. This means the result of our regression might not be as accurate as we expected. Moreover, since we cannot use residual versus predictors to check three assumptions, the result we got might not be accurate as well.
+
+```{r}
+res = rstandard(model)
+y_hat=fitted(model)
+plot(y_hat,res, title = "xxx")
+```
+### 4.2.2 Normal Q-Q Plot
+
+To check the normality with residual plot, we do so by using a QQ plot. Normality is verified by using a QQ plot which computes quantiles from the residuals and plot them against the standard Normal quantities. We are expected to see a straight diagonal string of points in the plot with minimal deviations at the ends. However, our plot clearly does not satisfy this assumption as points are not distributed along the diagonal. It looks like follows a bimodal pattern. This means our regression model may violate normality assumption.
+```{r}
+plot(model, 2)
+```
+
 
 # 5. Discussion
 
