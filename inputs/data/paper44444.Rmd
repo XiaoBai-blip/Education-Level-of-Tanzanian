@@ -118,17 +118,28 @@ We extracted one page of the data, sliced them into different groups, and restor
 
 
 ```{r, echo=FALSE, message=FALSE, fig.height=4, warning=FALSE}
+
+# Create a data_age data frame that relates respondents age group
+# By filter the background_characteristic being age related
 data_age <- data0 %>% filter(background_characteristic  == "20-24"|
                  background_characteristic == "25-29"| background_characteristic == "30-34"|
                  background_characteristic == "35-39"| background_characteristic == "40-44"| 
                  background_characteristic == "45-49"| background_characteristic == "50-54"|
                  background_characteristic == "55-59"| background_characteristic == "60-65"| 
                 background_characteristic == "65+")
+
+# Create a data_age data frame that relates respondents residence
+# By filter the background_characteristic being residence related
+
 data_area <- data0 %>% filter(background_characteristic  == "Mainland"|
                  background_characteristic == "Total_urban"| background_characteristic == "Dares_Salaam_city"|
                  background_characteristic == "Other_urban"| background_characteristic == "Total_rural") %>% select(background_characteristic, no_education, primary_incomplete)
+
+# create a data set called data0, with background charactertistc and median year of schooling selected and median year of schooling summarized in to groups. 
 data0%>%
+  # select background_characteristic and median_year_of_schooling
   select(background_characteristic,median_year_of_schooling)%>%
+  # filter median year of schooling and mutate a new variable new_schooling that categorize them into groups.
   filter(median_year_of_schooling!=25.0)%>%
   mutate(new_schooling =
            case_when(
@@ -137,9 +148,9 @@ data0%>%
              median_year_of_schooling <=4.5 ~ "3.0-4.5",
              median_year_of_schooling <=6.0 ~ "4.5-6.0",
              median_year_of_schooling <=7.5 ~ "6.0-7.5"))%>%
-  ggplot(
+ # create a bar plot with ggplot that demonstrate people's median year of schooling. 
+   ggplot(
        aes(x = new_schooling)) + 
-  
        geom_bar(bins=30, colour = "white", fill = "darkseagreen1") + 
        labs(title = "Figure 1: The bar plot of median year of schooling", x = "Median year of school, in groups", y = "Count", legend = "Education levels") + 
   theme_light() 
@@ -149,11 +160,15 @@ data0%>%
 
 
 ```{r, include=FALSE, message=FALSE, warning=FALSE}
+# Store the manipulated data into data_age
 data_age <- data_age %>%
+  # mutate a variable no_education
   mutate(no_education = as.numeric(no_education), median_year_of_schooling = as.numeric(median_year_of_schooling))
 cor_test <- cor.test(data_age$no_education, data_age$median_year_of_schooling, method= "pearson")
+ # doing a cor test
 cor_test
 
+# manipulate data for further use
 data_area <- data0 %>% filter(background_characteristic  == "Mainland"|
                  background_characteristic == "Total_urban"| background_characteristic == "Dares_Salaam_city"|
                  background_characteristic == "Other_urban"| background_characteristic == "Total_rural"|background_characteristic == "Pemba"|background_characteristic == "Unguja") %>% select(background_characteristic, no_education, primary_incomplete)
@@ -163,6 +178,8 @@ data_area <- data0 %>% filter(background_characteristic  == "Mainland"|
 To have an overview of our data, table 1 shows the basic education information for people who are aged 20 and above.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Create a table that shows no education and primary incomplete percentage in different groups
 knitr::kable(data_00 <- data_age %>% select(background_characteristic, no_education, primary_incomplete), caption = "No education and primary incomplete percentage in different groups")
 ```
 
@@ -170,6 +187,7 @@ knitr::kable(data_00 <- data_age %>% select(background_characteristic, no_educat
 As can be observed from this table, the percentage of Tanzanians with no education higher for older generations than young generations. For people who are 65 years old and above, 64.7% of them have no education, while for people who are 20-24 years old, there is only 9.3% of them has no education. This means the education generalization is increased, and more people are getting educated recently. Accordingly, the percentage of people who have not completed their primary school also shows this trend. For people who are younger, fewer of them have not completed their primary school. 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Create a table
 knitr::kable(data_area, caption = "No education and primary incomplete percentage in different residences")
 ```
 
@@ -178,31 +196,27 @@ knitr::kable(data_area, caption = "No education and primary incomplete percentag
 No education population and people who haven’t finish their primary education also differs in regions. Generally, total rural population have a higher no education and primary incomplete percentage, 31.6% and 35.2% respectively. Mainland has second highest no education and primary incomplete percentage.
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-data_age <- data0 %>% filter(background_characteristic  == "20-24"|
-                 background_characteristic == "25-29"| background_characteristic == "30-34"|
-                 background_characteristic == "35-39"| background_characteristic == "40-44"| 
-                 background_characteristic == "45-49"| background_characteristic == "50-54"|
-                 background_characteristic == "55-59"| background_characteristic == "60-65"| 
-                background_characteristic == "65+")
-data_area <- data0 %>% filter(background_characteristic  == "Mainland"|
-                 background_characteristic == "Total_urban"| background_characteristic == "Dares_Salaam_city"|
-                 background_characteristic == "Other_urban"| background_characteristic == "Total_rural" | background_characteristic == "Pemba"|background_characteristic == "Unguja") %>% select(background_characteristic, no_education, primary_incomplete)
-```
+
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height= 5}
 #install.packages("reshape")
 library(reshape)
 
+# create a data_residence data with with only relevent data selecting using 
+# slice and select
 data_residence = data0%>%
   slice(15:22)%>%
   select(background_characteristic,no_education,completed_primary,some_secondary_and_higher)
 
+# make data residence as a data frame
 mm =as.data.frame.matrix(data_residence)
 
+# melt the background characteristics and mm
 dat.m <- melt(mm, "background_characteristic")
-ggplot(dat.m, aes(x = factor(background_characteristic), y = value, fill = variable)) + 
+
+# create a bar plot
+ggplot(dat.m, aes(x = factor(background_characteristic), y = value, fill = variable)) +
 geom_bar(stat='identity',position = "dodge")+
   labs(title  = "Figure 2: Mean percent by residence", x="Residence", y="Mean value in percentage")+theme( plot.title=element_text(size=15), axis.text.x=element_text(size=10,angle=45, hjust=1))+scale_fill_brewer(palette="green") 
 
@@ -210,13 +224,18 @@ geom_bar(stat='identity',position = "dodge")+
 The bar plot shows the percent distribution of the male household population by three different levels of education attended according to different residence types. The x-axis shows eight main residences in Tanzania and the total male population is classified based on their highest education level. the lightest green represent percentage of no education population in Tanzania, and median light green bar represent the percentage of population in Tanzania who haven’t finished their primary education, and the darkest green represent the percentage of Tanzanian who did some secondary education and higher. In other word, a darker green color represent a higher level of education. Total rural area, as observed, have a least number of people attended some secondary and higher education, and second largest population of no education. Dares Salaam city, on the other hand, has the most population who completed their primary school and second largest population of attending some secondary and higher education, compared to other residences.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
+# create a data set called data_region with region relevant information
+# using slice and select
 data_region = data0%>%
   slice(24:43)%>%
   select(background_characteristic,no_education,completed_primary,some_secondary_and_higher)
-nn =as.data.frame.matrix(data_region)
 
+# make data_region as a data frame
+nn =as.data.frame.matrix(data_region)
+# melt
 dat.n <- melt(nn, "background_characteristic")
 
+# create a line graph
 ggplot(dat.n, aes(x = factor(background_characteristic), y = value, group = variable, colour = variable)) + 
 geom_line(stat='identity')+
   labs(title  = "Figure 3: Mean percent by region", x="Region", y="Mean percentage")+ theme(axis.text.x=element_text(color = "black", size=8, angle=30))+scale_fill_brewer(palette="green")
@@ -245,6 +264,7 @@ In the following sections, we will explain more about how we conduct these metho
 data_age%>%
   summarise(sample_mean = mean(as.numeric(no_education)),
             sd = sd(as.numeric(no_education)))
+# create a new data called np_edu_age 
 np_edu_age = data_age%>%
   select(background_characteristic, no_education)%>%
   filter(!is.na(no_education))
@@ -291,18 +311,24 @@ The graph is the result of bootstrap confidence interval for mean percentage of 
 ```{r, echo=FALSE, include = FALSE,message=FALSE, warning=FALSE}
 #CI for no education group by age
 
+# set replications b
 repetitions <- 1000
+# store mean in boot mean 
 boot_mean <- rep(NA, repetitions)
+
+# simulate with replicates 
 for (i in 1:repetitions) {
   sim_mean <- np_edu_age %>% sample_n(nrow(np_edu_age), replace = TRUE) %>% summarise(mean = mean(as.numeric(no_education))) %>% as.numeric()
   boot_mean[i] <- sim_mean
 }
+
+# make bootstrapped mean into tibble and store into boot_mean
 boot_mean <- tibble(mean = boot_mean)
 boot_mean%>%
   ggplot(aes(x=mean))+geom_histogram(fill="grey", color="blue")+geom_vline(xintercept = quantile(boot_mean$mean, c(0.025,0.975 )),color= "red")+labs(x="Mean of no education people", title="xxxx")+theme_classic()
 
   
-
+# quantile 
 quantile(boot_mean$mean, c(0.025,0.975 ))
 ```
 \newpage
@@ -314,13 +340,6 @@ quantile(boot_mean$mean, c(0.025,0.975 ))
 
 
 
-
-
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-
-```
 
 ## 4.2 Linear Regression Model:
 
