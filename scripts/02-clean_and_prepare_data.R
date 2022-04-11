@@ -1,4 +1,4 @@
-
+# Cleaning process
 demography_data <- read.csv("raw_data.csv")
 demography_data <-
   demography_data |>
@@ -19,5 +19,18 @@ demography_data <-
   )
 
 demography_data
-
+# save as the csv document
 write_csv(demography_data, "outputs/data/cleaned_data.csv")
+
+
+# Use pointblank to put together tests
+demography_data %>%
+  mutate_at(vars("No education", "Primary incomplete", "Completed primary", "Some secondary and higher", "Don't know", "Total", "Median year of schooling", "Total number"), ~as.integer(.))
+library(pointblank)
+
+agent <-
+  create_agent(tbl = demography_data) |>
+  col_is_character(columns = vars("Background Characteristic")) |>
+  col_is_character(columns = vars("No education", "Primary incomplete", "Completed primary", "Some secondary and higher", "Don't know", "Total", "Median year of schooling", "Total number")) |>
+  interrogate()
+agent  

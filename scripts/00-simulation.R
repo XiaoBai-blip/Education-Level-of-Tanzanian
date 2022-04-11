@@ -1,71 +1,20 @@
+# Load all packages that may need in this simulation
 library(knitr)
 library(janitor)
 library(lubridate)
 library(tidyverse)
 library(tidyr)
+# To simulate our data, we need to create a dataset with nine columns: 
+# ‘by residence’, ‘year’, 'no_education', 'primary_incomplete', and etc. 
+# that are listed below. In the case of 'by_residence', reasonable values could 
+# be 'Mainland', "total_urban' and six more.
 
-
-
-df1_new<-as.data.frame(t(data_region))
-df1_new
-
-
-data_region%>%
-  summarise(mean_no_edu = mean(no_education), mean_higher_edu = mean(completed_primary))
-#test_stat = 31.79-27.335 = 4.455
-
-mean_data <- data.frame (characteristic  = c("no_education", "completed_prim"),
-                         means = c("31.79", "27.335")
-)%>%mutate(means = as.numeric(means))
-
-test_stat = as.numeric(mean_data%>%summarise(test_stat = diff(means)))
-test_stat
-
-
-repetitions = 1000
-simulated_stats = rep(NA, repetitions)
-for (i in 1:repetitions)
-{
-  dat =mean_data%>% mutate(characteristic=sample(characteristic))
-  y = dat %>%
-    summarise(sim_test_stat = diff(means))
-  x[i]=as.numeric(y)
-}
-sim = data.frame(mean_diff=x)
-
-sim%>%
-  ggplot(aes(x=mean_diff))+geom_histogram()
-
-
-
-
-t <- (6.82381	-13.4)/(5.586124/sqrt(43))
-pvalue <- 1-pt(t,1000-1)
-pvalue
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-set.seed(234)
+set.seed(234)# We randomly set values for set seed
 
 simulated_Tanzania_data <- 
   tibble(
     By_residence = 
-      c(
+      c(                 # Randomly choose one of eight options, we repeat the name of each residence 20 times with rep()
         rep('Mainland', 20),
         rep('Total_urban', 20),
         rep('Dares_Salaam_city', 20),
@@ -75,20 +24,37 @@ simulated_Tanzania_data <-
         rep('Pemba', 20),
         rep('Unguja', 20)
       ),
-    year = 
+    year =              # Randomly select years from 1990 to 2009 
       rep(c(1990:2009), 8),
     
     no_education = 
-      runif(n = 160,
-            min = 10.2, 
-            max = 50.04),
+      runif(n = 160,    # we draw from the uniform distribution with runif() to simulate an estimated value with size 160
+            min = 10.2, # set the minimum and maximum values, and 
+            max = 50.04), # these values are from observing our raw data. The purpose is to let R generate similar values as raw dataset 
     primary_incompleted = 
-      runif(n = 160,
+      runif(n = 160,    # repeat the similar process as above but this time generate another variable.
             min = 13.2, 
             max = 50.3),
     
-    primary_completed = 
+    primary_completed = # repeat the same process
       runif(n = 160,
             min = 10.2, 
-            max = 50.3)
+            max = 50.3),
+    secondery_or_higher = # repeat the same process
+      runif(n = 160,
+            min = 11.2, 
+            max = 50.3),
+    
+    dont_know =           # repeat the same process
+      runif(n = 160,
+            min = 0, 
+            max = 3),
+    median_year_of_schooling =  # repeat the same process
+      runif(n = 160,
+            min = 0, 
+            max = 8),
+    total_number =      # repeat the same process until all nine variables are generated. Then we can use this simulated data
+      runif(n = 160,
+            min = 900, 
+            max = 1200)
   )
